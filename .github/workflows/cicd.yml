@@ -19,6 +19,8 @@ jobs:
 
             - name: setup google cloud-sdk
               uses: google-github-actions/setup-gcloud@v2
+              with:
+                install_components: 'gke-gcloud-auth-plugin'
 
             - name: GCloud authentication
               uses: google-github-actions/auth@v1
@@ -37,5 +39,6 @@ jobs:
 
             - name: Kubernetes deployment
               run: |
+                export USE_GKE_GCLOUD_AUTH_PLUGIN=True
                 gcloud container clusters get-credentials ${GKE_CLUSTER} --region ${GCLOUD_REGION}
                 envsubst < manifest.yaml | kubectl apply -f -
