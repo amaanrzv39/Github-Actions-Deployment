@@ -13,17 +13,18 @@ env:
 jobs:
     build_and_deploy:
         runs-on: ubuntu-latest
-        container:
-            image: google/cloud-sdk:latest
         steps:
             - name: checkout repo
               uses: actions/checkout@v2
+
+            - name: setup google cloud-sdk
+              uses: google-github-actions/setup-gcloud@v2
 
             - name: GCloud authentication
               uses: google-github-actions/auth@v1
               with:
                 credentials_json: ${{secrets.GCLOUD_SERVICE_KEY}}
-            
+
             - name: configure gcloud
               run: |
                 gcloud config set project ${GCP_PROJECT}
