@@ -7,7 +7,6 @@ on:
 
 env:
     GCLOUD_REGION: ${{secrets.GCLOUD_REGION}}
-    GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
     GCP_PROJECT: ${{secrets.GCP_PROJECT}}
     GKE_CLUSTER: ${{secrets.GKE_CLUSTER}}
 
@@ -23,7 +22,7 @@ jobs:
             - name: GCloud authentication
               uses: google-github-actions/auth@v1
               with:
-                credentials_json: ${GCLOUD_SERVICE_KEY}
+                credentials_json: ${{secrets.GCLOUD_SERVICE_KEY}}
             
             - name: configure gcloud
               run: |
