@@ -1,0 +1,41 @@
+name: CI/CD deployment to GKE
+
+on:
+    push:
+        branches:
+            - main
+
+env:
+    GCLOUD_REGION: ${{secrets.GCLOUD_REGION}}
+    GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+    GCP_PROJECT: ${{secrets.GCP_PROJECT}}
+    GKE_CLUSTER: ${{secrets.GKE_CLUSTER}}
+
+jobs:
+    build_and_deploy:
+        runs-on: ubuntu-latest
+        container:
+            image: google/cloud-sdk:latest
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v2
+
+            - name: GCloud authentication
+              uses: google-github-actions/auth@v1
+              with:
+                credentials_json: ${GCLOUD_SERVICE_KEY}
+            
+            - name: configure gcloud
+              run: |
+                gcloud config set project ${GCP_PROJECT}
+                gcloud auth configure-docker
+            
+            - name: build and push image to gcr
+              run: |
+                docker build -t gcr.io/${GCP_PROJECT}/mlops3:latest .
+                docker push gcr.io/${GCP_PROJECT}/mlops3:latest
+
+            - name: Kubernetes deployment
+              run: |
+                gcloud container clusters get-credentials ${GKE_CLUSTER} --region ${GCLOUD_REGION}
+                envsubst < manifest.yaml | kubectl apply -f -
